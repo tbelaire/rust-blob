@@ -30,15 +30,21 @@ pub fn draw(config: &Config,
                             config.img.height, &points);
 
 
-    cr.set_line_width(config.draw.axis_thickness / scale); // Replace 1 with line width.
+    if config.draw.background {
+        cr.set_source_rgba(1.,1.,1.,1.);
+        cr.paint();
+    }
     // Axis
-    cr.set_source_rgba(0.,0.,0.,0.5);
-    cr.line_to(0.0,-10.0);
-    cr.line_to(0.0,10.0);
-    cr.stroke();
-    cr.line_to(10.0,0.0);
-    cr.line_to(-10.0,0.0);
-    cr.stroke();
+    if config.draw.axis {
+        cr.set_line_width(config.draw.axis_thickness / scale);
+        cr.set_source_rgba(0.,0.,0.,0.5);
+        cr.line_to(0.0,-100.0);
+        cr.line_to(0.0,100.0);
+        cr.stroke();
+        cr.line_to(100.0,0.0);
+        cr.line_to(-100.0,0.0);
+        cr.stroke();
+    }
 
     cr.set_line_width(config.draw.polygon_thickness / scale); // Replace 1 with line width.
     if config.draw.polygon {

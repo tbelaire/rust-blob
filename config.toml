@@ -16,7 +16,7 @@ edge_buffer = 1.5
 
 [draw]
 # Toggles drawing of various things
-axis = false
+axis = true
 points = true
 polygon = true
 blob = true
