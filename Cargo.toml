@@ -1,0 +1,12 @@
+[package]
+name = "rust-blob"
+version = "0.0.1"
+authors = ["Theo Belaire <theo.belaire@gmail.com>"]
+
+[dependencies]
+toml = "0.1"
+docopt = "*"
+rustc-serialize = "*"  # if you're using `derive(RustcDecodable)`
+
+[dependencies.cairo]
+git = "file:///users/tbelaire/github/rust-cairo"

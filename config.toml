@@ -1,0 +1,32 @@
+
+
+[run]
+fix_hull = true
+refine_poly = true
+rm_crossing = true
+
+[img]
+# Controls the dimentions of the output image
+height = 600
+width  = 600
+# Controls buffer around edfe of scree;
+# larger -> more space
+edge_buffer = 1.5
+
+
+[draw]
+# Toggles drawing of various things
+axis = false
+points = true
+polygon = true
+blob = true
+background = true
+# Sizes of things
+point_radius = 2.0
+polygon_thickness = 0.6
+axis_thickness = 0.6
+
+
+[b2]
+mindist_radiues_factor = 3.0
+refine_opsilon = 1.0
