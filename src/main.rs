@@ -14,8 +14,7 @@ mod types;
 
 
 use config::{parse_config, parse_args};
-use types::Point;
-use input::{read_points};
+use input::{read_points, read_combs};
 
 use std::fs::File;
 
@@ -27,6 +26,7 @@ fn main() {
     println!("{:?}", config);
 
     let points = read_points(File::open(args.arg_points_file).unwrap());
+    let combs = read_combs(File::open(args.arg_combs_file).unwrap());
 
     let hull = vec![0,1,2,3];
     let inpoints = vec![0,2];

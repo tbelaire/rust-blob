@@ -2,7 +2,7 @@
 use std::fs::File;
 use std::io::prelude::*;
 
-use super::types::{Point, Index};
+use super::types::{Point, Index, Comb};
 
 pub fn read_points(mut f:File) -> Vec<Point> {
     let mut data_str = String::new();
@@ -17,4 +17,31 @@ pub fn read_points(mut f:File) -> Vec<Point> {
         .collect();
 
     points
+}
+
+pub fn read_combs(mut f:File) -> Vec<Comb> {
+    let mut data_str = String::new();
+    f.read_to_string(&mut data_str).unwrap();
+
+    let mut it = data_str.lines();
+    let mut combs: Vec<Comb> = Vec::new();
+    loop {
+        let comb_size: i32 = match it.next() {
+            None => break,
+            Some(comb_size_str) => comb_size_str.trim().parse().unwrap()
+        };
+        let mut sets: Vec<Vec<Index>> = Vec::new(); // Also Comb
+        for _ in 0..comb_size {
+            let line = it.next().expect("Comb cut short");
+
+            let set: Vec<Index> = line.words().skip(1) // Dropping the size
+                .map(|s| s.parse().unwrap())
+                .collect();
+            sets.push(set);
+        }
+        let _ = it.next(); // Dropping the extra value
+        combs.push(sets);
+
+    }
+    combs
 }

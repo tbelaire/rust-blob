@@ -1,7 +1,7 @@
 
 // Write the Docopt usage string.
 static USAGE: &'static str = "
-Usage: ./draw [-d] <points-file> <sets-file> <dest-prefix>
+Usage: ./draw [-d] <points-file> <combs-file> <dest-prefix>
 
 Options:
     -d, --output-directories  Output a forlder for each comb.
@@ -10,7 +10,7 @@ Options:
 #[derive(RustcDecodable, Debug)]
 pub struct Args {
     pub arg_points_file: String,
-    pub arg_sets_file: String,
+    pub arg_combs_file: String,
     pub arg_dest_prefix: String,
     pub flag_output_directories: bool,
 }
