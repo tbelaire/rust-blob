@@ -15,12 +15,12 @@ pub struct Color {
 }
 
 impl Color {
-    fn new(r:f64, g:f64, b:f64) -> Color {
+    pub fn new(r:f64, g:f64, b:f64) -> Color {
         Color{r:r, g:g, b:b}
     }
-    fn from_hex(hex: &str) -> Color {
+    pub fn from_hex(hex: &str) -> Color {
         use rustc_serialize::hex::FromHex;
-        if(hex.len() != 6) {
+        if hex.len() != 6 {
             panic!("Wrong length hex code");
         }
         let digits = hex.from_hex().unwrap();

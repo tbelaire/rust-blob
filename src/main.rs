@@ -15,6 +15,7 @@ const EPSILON: f64 = 0.01;
 
 use config::{parse_config, parse_args};
 use input::{read_points, read_combs};
+use types::Color;
 
 use std::fs::File;
 
@@ -27,6 +28,11 @@ fn main() {
 
     let points = read_points(File::open(args.arg_points_file).unwrap());
     let combs = read_combs(File::open(args.arg_combs_file).unwrap());
+
+
+    let hull_color = Color::from_hex("aaaa00");
+    let inpoints_color = Color::from_hex("ff3333");
+    let expoints_color = Color::from_hex("0033bb");
 
     for (comb_num, comb) in combs.iter().enumerate() {
         for (set_num, set) in comb.iter().enumerate() {
@@ -54,7 +60,11 @@ fn main() {
                 filepath = PathBuf::from(filename);
 
             }
-            draw::draw( &config, &points, &hull, &inpoints, &expoints, filepath.as_path() );
+            draw::draw( &config, &points,
+                        &hull, &hull_color,
+                        &inpoints, &inpoints_color,
+                        &expoints, &expoints_color,
+                        filepath.as_path() );
         }
     }
 }

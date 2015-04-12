@@ -1,6 +1,6 @@
 extern crate cairo;
 use config::Config;
-use types::{Point, Index};
+use types::{Point, Index, Color};
 
 use self::cairo::surface::Surface;
 use self::cairo::Cairo;
@@ -13,8 +13,11 @@ use tau::TAU;
 pub fn draw(config: &Config,
             points: &Vec<Point>,
             hull: &Vec<Index>,
+            hull_color: &Color,
             inpoints: &Vec<Index>,
+            inpoints_color: &Color,
             expoints: &Vec<Index>,
+            expoints_color: &Color,
             path: &Path,
             ) {
     use self::cairo::surface::format::Format;
@@ -47,15 +50,15 @@ pub fn draw(config: &Config,
 
     cr.set_line_width(config.draw.polygon_thickness / scale); // Replace 1 with line width.
     if config.draw.polygon {
-        cr.set_source_rgba(1.,0.3,0.0,0.8);
+        cr.set_source_rgba(hull_color.r, hull_color.g, hull_color.b, 0.8);
         draw_hull(&mut cr, &points, &hull);
     }
 
     if config.draw.points {
-        cr.set_source_rgba(1.0, 0.2, 0.2, 0.9);
+        cr.set_source_rgba(inpoints_color.r, inpoints_color.g, inpoints_color.b, 0.9);
         draw_points(&mut cr, points, inpoints, config.draw.point_radius / scale);
 
-        cr.set_source_rgba(0.0, 0.2, 0.8, 0.9);
+        cr.set_source_rgba(expoints_color.r, expoints_color.g, expoints_color.b, 0.9);
         draw_points(&mut cr, points, expoints, config.draw.point_radius / scale);
     }
 
