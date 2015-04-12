@@ -28,8 +28,32 @@ fn main() {
     let points = read_points(File::open(args.arg_points_file).unwrap());
     let combs = read_combs(File::open(args.arg_combs_file).unwrap());
 
-    let hull = vec![0,1,2,3];
-    let inpoints = vec![0,2];
-    let expoints = vec![1,3];
-    draw::draw( &config, &points, &hull, &inpoints, &expoints );
+    for (comb_num, comb) in combs.iter().enumerate() {
+        for (set_num, set) in comb.iter().enumerate() {
+            use std::path::PathBuf;
+            use std::fs;
+            let hull = set;
+            let inpoints = set;
+            let expoints = (0..points.len()).filter(
+                |ex| ! inpoints.iter().any(|inp| inp == ex)).collect();
+            let filepath:PathBuf;
+            if args.flag_output_directories {
+                let filename = format!("{}/{}/{}.png",
+                                       args.arg_dest_prefix,
+                                       comb_num, set_num);
+                filepath = PathBuf::from(filename);
+                match filepath.parent() {
+                    Some(parent) => fs::create_dir_all(parent).unwrap(),
+                    _ => (),
+                }
+            } else {
+                let filename = format!("{}_{}_{}.png",
+                                       args.arg_dest_prefix,
+                                       comb_num, set_num);
+                filepath = PathBuf::from(filename);
+
+            }
+            draw::draw( &config, &points, &hull, &inpoints, &expoints, filepath.as_path() );
+        }
+    }
 }

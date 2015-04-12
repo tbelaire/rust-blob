@@ -7,6 +7,7 @@ use cairo::surface::Surface;
 use cairo::Cairo;
 
 use std::f64;
+use std::path::Path;
 
 const TAU: f64 = 6.28318530718;
 
@@ -14,7 +15,8 @@ pub fn draw(config: &Config,
             points: &Vec<Point>,
             hull: &Vec<Index>,
             inpoints: &Vec<Index>,
-            expoints: &Vec<Index>
+            expoints: &Vec<Index>,
+            path: &Path,
             ) {
     use cairo::surface::format::Format;
     let mut surface = Surface::create_image(Format::ARGB32,
@@ -53,9 +55,27 @@ pub fn draw(config: &Config,
     }
 
 
-    surface.write_to_png("Test.png");
+    let filename = ascii_path_to_string(path).expect("Filename not ascii?!");
+    surface.write_to_png(filename);
 
 }
+
+fn ascii_path_to_string(path: &Path) -> Option<&str> {
+    use std::ascii::AsciiExt;
+    let s: &str = match path.to_str() {
+        Some(x) => x,
+        None => return None,
+    };
+
+    if s[..].is_ascii() {
+        Some(s)
+    } else {
+        None
+    }
+}
+
+
+
 
 fn scale_world(cr: &mut Cairo,
         boundary: f64, img_width: i32, img_height: i32,
