@@ -7,8 +7,8 @@ rm_crossing = true
 
 [img]
 # Controls the dimentions of the output image
-width  = 600
-height = 600
+width  = 1000
+height = 1000
 # Controls buffer around edfe of scree;
 # larger -> more space
 edge_buffer = 1.5
