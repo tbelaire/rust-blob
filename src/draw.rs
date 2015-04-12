@@ -1,5 +1,6 @@
 
 extern crate cairo;
+use config::Config;
 use types::{Point, Index};
 
 use cairo::surface::Surface;
@@ -9,22 +10,25 @@ use std::f64;
 
 const TAU: f64 = 6.28318530718;
 
-pub fn draw(img_width: i32, img_height: i32,
+pub fn draw(config: &Config,
             points: &Vec<Point>,
             hull: &Vec<Index>,
             inpoints: &Vec<Index>,
             expoints: &Vec<Index>
             ) {
     use cairo::surface::format::Format;
-    let mut surface = Surface::create_image(Format::ARGB32, img_width, img_height);
+    let mut surface = Surface::create_image(Format::ARGB32,
+                                            config.img.width,
+                                            config.img.height);
 
     let mut cr = Cairo::create(&mut surface);
 
 
-    let scale = scale_world(&mut cr, 1.2, img_width, img_height, &points);
+    let scale = scale_world(&mut cr, config.img.edge_buffer, config.img.width,
+                            config.img.height, &points);
 
 
-    cr.set_line_width(1. / scale); // Replace 1 with line width.
+    cr.set_line_width(config.draw.axis_thickness / scale); // Replace 1 with line width.
     // Axis
     cr.set_source_rgba(0.,0.,0.,0.5);
     cr.line_to(0.0,-10.0);
@@ -34,11 +38,19 @@ pub fn draw(img_width: i32, img_height: i32,
     cr.line_to(-10.0,0.0);
     cr.stroke();
 
-    cr.set_source_rgba(1.,0.3,0.0,0.8);
-    draw_hull(&mut cr, &points, &hull);
+    cr.set_line_width(config.draw.polygon_thickness / scale); // Replace 1 with line width.
+    if config.draw.polygon {
+        cr.set_source_rgba(1.,0.3,0.0,0.8);
+        draw_hull(&mut cr, &points, &hull);
+    }
 
-    cr.set_source_rgba(1.0, 0.2, 0.2, 0.9);
-    draw_points(&mut cr, points, inpoints, 0.01);
+    if config.draw.points {
+        cr.set_source_rgba(1.0, 0.2, 0.2, 0.9);
+        draw_points(&mut cr, points, inpoints, config.draw.point_radius / scale);
+
+        cr.set_source_rgba(0.0, 0.2, 0.8, 0.9);
+        draw_points(&mut cr, points, expoints, config.draw.point_radius / scale);
+    }
 
 
     surface.write_to_png("Test.png");

@@ -11,7 +11,7 @@ mod types;
 
 
 
-use config::{Args, Config, parse_config, parse_args};
+use config::{parse_config, parse_args};
 use types::Point;
 
 use std::fs::File;
@@ -32,5 +32,5 @@ fn main() {
     let hull = vec![0,1,2,3];
     let inpoints = vec![0,2];
     let expoints = vec![1,3];
-    draw::draw( 400, 400, &points, &hull, &inpoints, &expoints );
+    draw::draw( &config, &points, &hull, &inpoints, &expoints );
 }

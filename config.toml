@@ -22,8 +22,8 @@ polygon = true
 blob = true
 background = true
 # Sizes of things
-point_radius = 2.0
-polygon_thickness = 0.6
+point_radius = 3.0
+polygon_thickness = 1.6
 axis_thickness = 0.6
 
 
