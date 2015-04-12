@@ -1,36 +1,26 @@
 extern crate cairo;
+extern crate docopt;
+extern crate rustc_serialize;
 extern crate toml;
 
+
 mod draw;
+mod config;
 mod types;
+
+
+
+use config::{Args, Config, parse_config, parse_args};
 use types::Point;
 
-extern crate rustc_serialize;
-extern crate docopt;
-
-use docopt::Docopt;
-
-// Write the Docopt usage string.
-static USAGE: &'static str = "
-Usage: ./draw [-d] <points-file> <sets-file> <dest-prefix>
-
-Options:
-    -d, --output-directories  Output a forlder for each comb.
-";
-
-#[derive(RustcDecodable, Debug)]
-struct Args {
-    arg_points_file: String,
-    arg_sets_file: String,
-    arg_dest_prefix: String,
-    flag_output_directories: bool,
-}
+use std::fs::File;
 
 fn main() {
-    let args: Args = Docopt::new(USAGE)
-                            .and_then(|d| d.decode())
-                            .unwrap_or_else(|e| e.exit());
+    let args = parse_args();
     println!("{:?}", args);
+
+    let config = parse_config(File::open("config.toml").unwrap());
+    println!("{:?}", config);
 
 
     let points =vec![

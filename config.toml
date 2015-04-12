@@ -7,8 +7,8 @@ rm_crossing = true
 
 [img]
 # Controls the dimentions of the output image
-height = 600
 width  = 600
+height = 600
 # Controls buffer around edfe of scree;
 # larger -> more space
 edge_buffer = 1.5
@@ -28,5 +28,5 @@ axis_thickness = 0.6
 
 
 [b2]
-mindist_radiues_factor = 3.0
-refine_opsilon = 1.0
+mindist_radius_factor = 3.0
+refine_epsilon = 1.0
