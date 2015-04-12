@@ -38,16 +38,17 @@ fn main() {
                 |ex| ! inpoints.iter().any(|inp| inp == ex)).collect();
             let filepath:PathBuf;
             if args.flag_output_directories {
-                let filename = format!("{}/{}/{}.png",
+                let filename = format!("{:02}/{:02}/{:02}.png",
                                        args.arg_dest_prefix,
                                        comb_num, set_num);
+                println!("Filename: {}", filename);
                 filepath = PathBuf::from(filename);
                 match filepath.parent() {
                     Some(parent) => fs::create_dir_all(parent).unwrap(),
                     _ => (),
                 }
             } else {
-                let filename = format!("{}_{}_{}.png",
+                let filename = format!("{:02}_{:02}_{:02}.png",
                                        args.arg_dest_prefix,
                                        comb_num, set_num);
                 filepath = PathBuf::from(filename);
