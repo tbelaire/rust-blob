@@ -60,11 +60,12 @@ use std::io::prelude::*;
 use toml;
 use docopt::Docopt;
 
+// TODO(tbelaire) better error handling
 pub fn parse_config( mut f: File ) -> Config {
     let mut contents: String = String::new();
     f.read_to_string(&mut contents).unwrap();
 
-    toml::decode_str(&contents).unwrap()
+    toml::decode_str(&contents).expect("Failed to parse config file")
 }
 
 pub fn parse_args() -> Args {
