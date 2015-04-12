@@ -7,6 +7,7 @@ authors = ["Theo Belaire <theo.belaire@gmail.com>"]
 toml = "0.1"
 docopt = "*"
 rustc-serialize = "*"  # if you're using `derive(RustcDecodable)`
+nalgebra = "*"
 
 [dependencies.cairo]
 git = "file:///users/tbelaire/github/rust-cairo"

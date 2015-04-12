@@ -1,5 +1,6 @@
 extern crate cairo;
 extern crate docopt;
+extern crate nalgebra;
 extern crate rustc_serialize;
 extern crate toml;
 
@@ -24,10 +25,10 @@ fn main() {
 
 
     let points =vec![
-                Point{ x: 0.0, y: 0.0 },
-                Point{ x: 0.0, y: 1.0 },
-                Point{ x: 1.0, y: 1.0 },
-                Point{ x: 1.0, y: 0.0 }];
+                Point::new(0.0, 0.0),
+                Point::new(0.0, 1.0),
+                Point::new(1.0, 1.0),
+                Point::new(1.0, 0.0)];
     let hull = vec![0,1,2,3];
     let inpoints = vec![0,2];
     let expoints = vec![1,3];

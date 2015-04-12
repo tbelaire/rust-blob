@@ -1,7 +1,5 @@
 
-pub struct Point {
-    pub x : f64,
-    pub y : f64
-}
+use nalgebra::Vec2;
 
+pub type Point = Vec2<f64>;
 pub type Index = usize;
