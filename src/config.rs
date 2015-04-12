@@ -1,4 +1,12 @@
 
+extern crate docopt;
+extern crate toml;
+
+
+use std::fs::File;
+use std::io::prelude::*;
+use self::docopt::Docopt;
+
 // Write the Docopt usage string.
 static USAGE: &'static str = "
 Usage: ./draw [-d] <points-file> <combs-file> <dest-prefix>
@@ -55,10 +63,6 @@ pub struct Config {
     pub b2:   ConfigB2
 }
 
-use std::fs::File;
-use std::io::prelude::*;
-use toml;
-use docopt::Docopt;
 
 // TODO(tbelaire) better error handling
 pub fn parse_config( mut f: File ) -> Config {

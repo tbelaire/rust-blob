@@ -1,15 +1,14 @@
-
 extern crate cairo;
 use config::Config;
 use types::{Point, Index};
 
-use cairo::surface::Surface;
-use cairo::Cairo;
+use self::cairo::surface::Surface;
+use self::cairo::Cairo;
 
 use std::f64;
 use std::path::Path;
 
-const TAU: f64 = 6.28318530718;
+use tau::TAU;
 
 pub fn draw(config: &Config,
             points: &Vec<Point>,
@@ -18,7 +17,7 @@ pub fn draw(config: &Config,
             expoints: &Vec<Index>,
             path: &Path,
             ) {
-    use cairo::surface::format::Format;
+    use self::cairo::surface::format::Format;
     let mut surface = Surface::create_image(Format::ARGB32,
                                             config.img.width,
                                             config.img.height);

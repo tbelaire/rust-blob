@@ -2,7 +2,7 @@
 use std::fs::File;
 use std::io::prelude::*;
 
-use super::types::{Point, Index, Comb};
+use types::{Point, Index, Comb};
 
 pub fn read_points(mut f:File) -> Vec<Point> {
     let mut data_str = String::new();

@@ -1,15 +1,15 @@
 #![feature(str_words)]
-extern crate cairo;
-extern crate docopt;
-extern crate nalgebra;
 extern crate rustc_serialize;
-extern crate toml;
+extern crate tau;
 
 
+mod blob;
 mod config;
 mod draw;
 mod input;
 mod types;
+
+const EPSILON: f64 = 0.01;
 
 
 
@@ -32,7 +32,7 @@ fn main() {
         for (set_num, set) in comb.iter().enumerate() {
             use std::path::PathBuf;
             use std::fs;
-            let hull = set;
+            let hull = blob::giftwrap(&points, &set);
             let inpoints = set;
             let expoints = (0..points.len()).filter(
                 |ex| ! inpoints.iter().any(|inp| inp == ex)).collect();
