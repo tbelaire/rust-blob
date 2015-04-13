@@ -1,5 +1,8 @@
 #![feature(str_words)]
 #![feature(collections)]
+#[macro_use]
+extern crate log;
+
 extern crate rustc_serialize;
 extern crate tau;
 extern crate nalgebra as na;

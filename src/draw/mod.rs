@@ -124,7 +124,7 @@ fn scale_world(cr: &mut Cairo,
     let scalex :f64 = img_width  as f64/ user_width;
     let scaley :f64 = img_height as f64/ user_height;
 
-    println!("Scaling by {},{}", scalex, scaley);
+    debug!("Scaling by {},{}", scalex, scaley);
 
     cr.scale(scalex, scaley);
     let offsetx = (user_width as f64 - user_width as f64/boundary) / 2. - minx;
@@ -194,10 +194,10 @@ fn trace_blob(cr: &mut Cairo,
         let (a_ang, b_ang) = smooth_line_angle(&a, a_r, a_inblob,
                                                &b, b_r, b_inblob);
         if a_inblob {
-            println!("cr.arc_negative({}, {}, {}, {}, {})", a.x, a.y, a_r, previous_angle.to_degrees(), a_ang.to_degrees());
+            debug!("cr.arc_negative({}, {}, {}, {}, {})", a.x, a.y, a_r, previous_angle.to_degrees(), a_ang.to_degrees());
             cr.arc_negative(a.x, a.y, a_r, previous_angle, a_ang);
         } else {
-            println!("cr.arc({}, {}, {}, {}, {})", a.x, a.y, a_r, previous_angle.to_degrees(), a_ang.to_degrees());
+            debug!("cr.arc({}, {}, {}, {}, {})", a.x, a.y, a_r, previous_angle.to_degrees(), a_ang.to_degrees());
             cr.arc(a.x, a.y, a_r, previous_angle, a_ang);
         }
         previous_angle = b_ang;

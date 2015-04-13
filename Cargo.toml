@@ -16,7 +16,10 @@ path = "src/lib.rs"
 doc = true
 doctest = false # Doctests aren't great atm
 
+
 [dependencies]
+log = "*"
+env_logger = "*"
 toml = "0.1"
 docopt = "*"
 rustc-serialize = "*"  # if you're using `derive(RustcDecodable)`

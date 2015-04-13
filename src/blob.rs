@@ -89,7 +89,7 @@ pub fn giftwrap(points: &Vec<Point>,
             }
         }
     }
-    println!("Leftmost is {:?} at {}", leftmost, leftmost_ix);
+    // println!("Leftmost is {:?} at {}", leftmost, leftmost_ix);
 
     let mut ix_left_to_insert:HashSet<Index> = HashSet::with_capacity(included.len());
     for &i in included {
@@ -103,7 +103,7 @@ pub fn giftwrap(points: &Vec<Point>,
     let mut base_ix = leftmost_ix;
     let mut need_to_reinsert_leftmost = true;
     loop {
-        println!("With base {:?} at ({})", points[base_ix], base_ix);
+        // println!("With base {:?} at ({})", points[base_ix], base_ix);
         let mut end_ix:Index = match ix_left_to_insert.iter().next() {
             Some(x) => *x,
             None    => break, // Ran out of points, we're done
@@ -113,11 +113,15 @@ pub fn giftwrap(points: &Vec<Point>,
                 Colinear => continue, // TODO check distance
                 Clockwise => continue,
                 CounterClockwise => {
+                    /*
                     println!(
-                    "With {base:?}, Swapping {end:?}({end_ix:?}) for {other:?}({other_ix:?}) \nas {base_ix:?} {end_ix:?} {other_ix:?} form a CounterClockwise triange",
+                        "With {base:?}, Swapping {end:?}({end_ix:?})
+                         for {other:?}({other_ix:?}) \n
+                        as {base_ix:?} {end_ix:?} {other_ix:?}
+                         form a CounterClockwise triange",
                         base=points[base_ix], end=points[end_ix], other=points[other_ix],
                         base_ix=base_ix, end_ix=end_ix, other_ix=other_ix);
-
+                    */
                     end_ix = other_ix},
             };
         }

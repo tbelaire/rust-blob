@@ -1,4 +1,6 @@
 extern crate rust_blob;
+#[macro_use] extern crate log;
+extern crate env_logger;
 
 
 use rust_blob::config::{parse_config, parse_args};
@@ -12,11 +14,16 @@ use std::fs::File;
 
 /// Documenation for main
 fn main() {
+    env_logger::init().unwrap();
     let args = parse_args();
-    println!("{:?}", args);
+    info!("{:?}", args);
 
     let config = parse_config(File::open("config.toml").unwrap());
-    println!("{:?}", config);
+    info!("{:?}", config);
+
+
+    info!("");
+    info!("");
 
     let points = read_points(File::open(args.arg_points_file).unwrap());
     let combs = read_combs(File::open(args.arg_combs_file).unwrap());
@@ -35,7 +42,7 @@ fn main() {
                 let filename = format!("{:02}/{:02}/{:02}.png",
                                        args.arg_dest_prefix,
                                        comb_num, set_num);
-                println!("Filename: {}", filename);
+                info!("Filename: {}", filename);
                 filepath = PathBuf::from(filename);
                 match filepath.parent() {
                     Some(parent) => fs::create_dir_all(parent).unwrap(),
@@ -58,9 +65,9 @@ fn main() {
             let (hull, radii) = blob::find_hull(
                 &config, &points, &inpoints, &expoints );
 
-            println!("Hull:");
+            info!("Hull:");
             for &ix in &hull {
-                println!("({:6},{:6}) ", points[ix].x, points[ix].y);
+                info!("({:6},{:6}) ", points[ix].x, points[ix].y);
             }
             // Draw it!
             draw::draw( &config, &points,
