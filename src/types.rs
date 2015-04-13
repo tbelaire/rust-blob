@@ -3,6 +3,13 @@ use na::Vec2;
 use na::Pnt2;
 
 pub type Point = Pnt2<f64>;
+
+pub struct SPoint {
+    p: Point,
+    radius: Radius,
+    in_blob: bool,
+}
+
 pub type Vector = Vec2<f64>;
 pub type Index = usize;
 pub type Radius = f64;
@@ -40,3 +47,20 @@ fn test_hex_code() {
 }
 
 
+impl SPoint {
+    fn new(p: Point, r: Radius, inb: bool) -> SPoint {
+        SPoint{ p:p, radius:r, in_blob:inb }
+    }
+}
+
+use std::fmt::{Display, Formatter};
+use std::fmt;
+impl Display for SPoint {
+    fn fmt(&self, fmt: &mut Formatter) -> fmt::Result{
+        if self.in_blob {
+            Display::fmt(&format!("({},{};{})", self.p.x, self.p.y, self.radius), fmt)
+        } else {
+            Display::fmt(&format!("<{},{};{}>", self.p.x, self.p.y, self.radius), fmt)
+        }
+    }
+}
