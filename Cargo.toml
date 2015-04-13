@@ -6,8 +6,15 @@ authors = ["Theo Belaire <theo.belaire@gmail.com>"]
 [[bin]]
 name = "draw"
 path = "src/main.rs"
+test = false  # Only things to test are in the library
+doc = false
+doctest = false
+
+[lib]
+name = "rust_blob"
+path = "src/lib.rs"
 doc = true
-doctest = true
+doctest = false # Doctests aren't great atm
 
 [dependencies]
 toml = "0.1"

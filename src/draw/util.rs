@@ -5,16 +5,6 @@ use std::path::Path;
 use tau::TAU;
 
 /// Converts a ascii Path to a &str
-/// # Examples
-/// ```
-/// use std::path::Path;
-/// use self::ascii_path_to_string;
-///
-/// let p = &Path::new("/test/file.foo");
-/// let strified = ascii_path_to_string(p);
-/// assert_eq!(strified, Some("/test/file.foo"));
-/// assert!(false);
-/// ```
 pub fn ascii_path_to_string(path: &Path) -> Option<&str> {
     use std::ascii::AsciiExt;
     let s: &str = match path.to_str() {
@@ -27,6 +17,12 @@ pub fn ascii_path_to_string(path: &Path) -> Option<&str> {
     } else {
         None
     }
+}
+#[test]
+fn test_ascii_path_to_string() {
+    let p = &Path::new("/test/file.foo");
+    let strified = ascii_path_to_string(p);
+    assert_eq!(strified, Some("/test/file.foo"));
 }
 
 
@@ -131,5 +127,33 @@ fn test_smooth_line_normal_up_right() {
 }
 
 
+/// Normalizes an angle to be within [0,2*PI)
+/// # Examples
+/// ```
+/// ```
+fn normalize_angle(mut a: f64) -> f64 {
+    while a < 0. { a = a + TAU; }
+    while a >= TAU { a = a - TAU; }
+    a
+}
+#[test]
+fn test_normalize_angle() {
+    use std::f64::consts::PI;
+
+    assert_eq!(normalize_angle(-PI), PI);
+}
+
+
+fn smmoth_line_angle(a: &Point, a_r: &f64, a_inblob: bool,
+                     b: &Point, b_r: &f64, b_inblob: bool) -> (f64,f64) {
+    let n = smooth_line_normal(a, a_r, a_inblob, b, b_r, b_inblob);
+    let theta = n.y.atan2(n.x); // Yes, I know it's strange.
+
+    if a_inblob == b_inblob {
+        (theta, theta)
+    } else {
+        (theta, normalize_angle((theta + TAU/2.)))
+    }
+}
 
 
