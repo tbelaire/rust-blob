@@ -1,6 +1,7 @@
 #![feature(str_words)]
 extern crate rustc_serialize;
 extern crate tau;
+extern crate nalgebra as na;
 
 
 mod blob;

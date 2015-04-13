@@ -1,6 +1,6 @@
 extern crate cairo;
 use config::Config;
-use types::{Point, Index, Color};
+use types::{Point, Vector, Index, Color};
 
 use self::cairo::surface::Surface;
 use self::cairo::Cairo;
@@ -137,3 +137,64 @@ fn draw_points(cr: &mut Cairo,
         cr.fill();
     }
 }
+
+fn trace_blob(cr: &mut Cairo,
+             points: &Vec<Point>,
+             hull: &Vec<Index>,
+             radii: &Vec<f64>) {
+    cr.new_path();
+    let mut previous_angle:f64;
+
+
+}
+
+fn smooth_line_normal(&a: &Point, a_r: &f64, a_inblob: bool,
+                      &b: &Point, b_r: &f64, b_inblob: bool) -> Vector {
+    use na::*;
+    use std::ops::Sub;
+    let mut u:Vector = b - a;
+    let norm:f64 = u.normalize_mut();
+    // u is now normalized
+    let delta = if a_inblob == b_inblob {
+        (a_r - b_r)/norm
+    } else {
+        (a_r + b_r)/norm
+    };
+
+    if a_inblob {
+        Rot2::<f64>::new(Vec1::new(delta.acos())) * u
+    } else {
+        Rot2::<f64>::new(Vec1::new(TAU - delta.acos())) * u
+    }
+}
+
+
+#[test]
+fn test_smooth_line_normal() {
+    use na;
+    let a = Point::new(0.0, 0.0);
+    let b = Point::new(1.0, 0.0);
+
+    let up = smooth_line_normal(&a, &0.2, true, &b, &0.2, true);
+    println!("Up is {:?}", up);
+    assert!(na::approx_eq(&up, &Vector::new(0.0, 1.0)));
+
+    // TODO  is this correct???
+    let down = smooth_line_normal(&a, &0.2, false, &b, &0.2, false);
+    println!("Down is {:?}", down);
+    assert!(na::approx_eq(&down, &Vector::new(0.0, -1.0)));
+
+    let uppish_leftish = smooth_line_normal(&a, &0.2, true, &b, &0.8, true);
+    println!("Uppish leftish is {:?}", uppish_leftish);
+    assert!(uppish_leftish.x < 0.);
+    assert!(uppish_leftish.y > 0.);
+
+    let uppish_rightish = smooth_line_normal(&a, &0.2, true, &b, &0.2, false);
+    println!("uppish rightish is {:?}", uppish_rightish);
+    assert!(uppish_rightish.x > 0.);
+    assert!(uppish_rightish.y > 0.);
+}
+
+
+
+

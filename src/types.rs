@@ -1,8 +1,9 @@
 
-extern crate nalgebra;
-use self::nalgebra::Vec2;
+use na::Vec2;
+use na::Pnt2;
 
-pub type Point = Vec2<f64>;
+pub type Point = Pnt2<f64>;
+pub type Vector = Vec2<f64>;
 pub type Index = usize;
 
 pub type Comb = Vec<Vec<Index>>;
