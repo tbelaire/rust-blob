@@ -44,6 +44,8 @@ pub struct ConfigDraw {
     pub polygon: bool,
     pub blob: bool,
     pub background: bool,
+    pub labels: bool,
+    pub fontsize: f64,
     pub point_radius: f64,
     pub polygon_thickness: f64,
     pub axis_thickness: f64,

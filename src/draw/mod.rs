@@ -68,6 +68,14 @@ pub fn draw(config: &Config,
         draw_hull(&mut cr, &points, &hull);
     }
 
+    if config.draw.labels {
+        cr.set_source_rgba(0.,0.,0.,1.);
+        cr.select_font_face("Sans", cairo::font::slant::Slant::Normal,
+                            cairo::font::weight::Weight::Bold);
+        cr.set_font_size(config.draw.fontsize/scale);
+        label_points(&mut cr, &points, &hull);
+    }
+
     if config.draw.blob {
         cr.set_line_width(config.draw.polygon_thickness / scale);
         cr.set_source_rgba(hull_color.r, hull_color.g, hull_color.b, 0.4);
@@ -118,9 +126,10 @@ fn scale_world(cr: &mut Cairo,
 
     println!("Scaling by {},{}", scalex, scaley);
 
-    cr.scale(scalex, -scaley);
+    cr.scale(scalex, scaley);
     let offsetx = (user_width as f64 - user_width as f64/boundary) / 2. - minx;
-    let offsety = -maxy * ((boundary - 1.) / 2. + 1.);
+    let offsety = (user_height as f64 - user_height as f64/boundary) / 2. - miny;
+    // let offsety = -1.*(-maxy * ((boundary - 1.) / 2. + 1.));
     cr.translate(offsetx, offsety);
 
     scalex
@@ -150,6 +159,15 @@ fn draw_points(cr: &mut Cairo,
     }
 }
 
+fn label_points(cr: &mut Cairo,
+                points: &Vec<Point>,
+                indices: &Vec<Index>) {
+    for (i,&ix) in indices.iter().enumerate() {
+        cr.move_to(points[ix].x, points[ix].y);
+        cr.show_text(&format!(" {}", i));
+    }
+}
+
 fn trace_blob(cr: &mut Cairo,
              points: &Vec<Point>,
              hull: &Vec<Index>,
@@ -176,10 +194,10 @@ fn trace_blob(cr: &mut Cairo,
         let (a_ang, b_ang) = smooth_line_angle(&a, a_r, a_inblob,
                                                &b, b_r, b_inblob);
         if a_inblob {
-            println!("cr.arc_negative({}, {}, {}, {}, {})", a.x, a.y, a_r, previous_angle, a_ang);
+            println!("cr.arc_negative({}, {}, {}, {}, {})", a.x, a.y, a_r, previous_angle.to_degrees(), a_ang.to_degrees());
             cr.arc_negative(a.x, a.y, a_r, previous_angle, a_ang);
         } else {
-            println!("cr.arc({}, {}, {}, {}, {})", a.x, a.y, a_r, previous_angle, a_ang);
+            println!("cr.arc({}, {}, {}, {}, {})", a.x, a.y, a_r, previous_angle.to_degrees(), a_ang.to_degrees());
             cr.arc(a.x, a.y, a_r, previous_angle, a_ang);
         }
         previous_angle = b_ang;

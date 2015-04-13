@@ -21,6 +21,8 @@ points = true
 polygon = true
 blob = true
 background = true
+labels = true
+fontsize = 20.0
 # Sizes of things
 point_radius = 3.0
 polygon_thickness = 1.6
