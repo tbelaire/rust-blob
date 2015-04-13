@@ -11,7 +11,7 @@ use self::util::*;
 use config::Config;
 
 // We need our types.
-use types::{Point, Vector, Index, Color};
+use types::{Point, Vector, Index, Color, Radius};
 
 use std::f64;
 use std::path::Path;
@@ -30,6 +30,8 @@ pub fn draw(config: &Config,
             inpoints_color: &Color,
             expoints: &Vec<Index>,
             expoints_color: &Color,
+            inblob: &Vec<bool>,
+            radii: &Vec<Radius>,
             path: &Path,
             ) {
     use self::cairo::surface::format::Format;
@@ -60,11 +62,21 @@ pub fn draw(config: &Config,
         cr.stroke();
     }
 
-    cr.set_line_width(config.draw.polygon_thickness / scale); // Replace 1 with line width.
     if config.draw.polygon {
+        cr.set_line_width(config.draw.polygon_thickness / scale);
         cr.set_source_rgba(hull_color.r, hull_color.g, hull_color.b, 0.8);
         draw_hull(&mut cr, &points, &hull);
     }
+
+    if config.draw.blob {
+        cr.set_line_width(config.draw.polygon_thickness / scale);
+        cr.set_source_rgba(hull_color.r, hull_color.g, hull_color.b, 0.4);
+        trace_blob(&mut cr, &points, &hull, &inblob, &radii);
+        cr.fill_preserve();
+        cr.set_source_rgba(hull_color.r, hull_color.g, hull_color.b, 0.8);
+        cr.stroke();
+    }
+
 
     if config.draw.points {
         cr.set_source_rgba(inpoints_color.r, inpoints_color.g, inpoints_color.b, 0.9);
@@ -141,7 +153,36 @@ fn draw_points(cr: &mut Cairo,
 fn trace_blob(cr: &mut Cairo,
              points: &Vec<Point>,
              hull: &Vec<Index>,
+             inblob: &Vec<bool>,
              radii: &Vec<f64>) {
     cr.new_path();
-    let mut previous_angle:f64;
+    let last_ix = hull[hull.len() - 1];
+    let first_ix = hull[0];
+    let (_, mut previous_angle) = smooth_line_angle(
+        &points[last_ix], radii[last_ix], inblob[last_ix],
+        &points[first_ix], radii[first_ix], inblob[first_ix]);
+
+    for &i in hull {
+        let next_i = (i + 1) % points.len();
+        let a = points[i];
+        let b = points[next_i];
+
+        let a_r = radii[i];
+        let b_r = radii[next_i];
+
+        let a_inblob = inblob[i];
+        let b_inblob = inblob[next_i];
+
+        let (a_ang, b_ang) = smooth_line_angle(&a, a_r, a_inblob,
+                                               &b, b_r, b_inblob);
+        if a_inblob {
+            println!("cr.arc_negative({}, {}, {}, {}, {})", a.x, a.y, a_r, previous_angle, a_ang);
+            cr.arc_negative(a.x, a.y, a_r, previous_angle, a_ang);
+        } else {
+            println!("cr.arc({}, {}, {}, {}, {})", a.x, a.y, a_r, previous_angle, a_ang);
+            cr.arc(a.x, a.y, a_r, previous_angle, a_ang);
+        }
+        previous_angle = b_ang;
+    }
+    cr.close_path();
 }

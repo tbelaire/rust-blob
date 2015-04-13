@@ -53,15 +53,21 @@ fn main() {
             let expoints = (0..points.len()).filter(
                 |ex| ! inpoints.iter().any(|inp| inp == ex)).collect();
 
+            let inblob = blob::make_inblob(points.len(), inpoints);
             // Compute the polygon, and radii.
             let (hull, radii) = blob::find_hull(
                 &config, &points, &inpoints, &expoints );
 
+            println!("Hull:");
+            for &ix in &hull {
+                println!("({:6},{:6}) ", points[ix].x, points[ix].y);
+            }
             // Draw it!
             draw::draw( &config, &points,
                         &hull, &hull_color,
                         &inpoints, &inpoints_color,
                         &expoints, &expoints_color,
+                        &inblob, &radii,
                         filepath.as_path() );
         }
     }

@@ -14,12 +14,15 @@ enum Orientation {
     CounterClockwise
 }
 fn orientation(a: Point, b: Point, c: Point) -> Orientation {
+    // println!("a: {:?}, b:{:?}, c:{:?}", a, b, c);
     let ab = b - a;
     let ac = c - a;
+    // println!("ab: {:?}, ac: {:?}", ab, ac);
     let cross = ab.y * ac.x - ab.x * ac.y;
+    // println!("Cross: {}", cross);
     if cross.abs() < EPSILON {
         return Colinear;
-    } else if cross < 0.0 {
+    } else if cross > 0.0 {
         return Clockwise;
     } else {
         return CounterClockwise;
@@ -29,10 +32,29 @@ fn orientation(a: Point, b: Point, c: Point) -> Orientation {
 fn orientation_test() {
     let a = Point::new(0.0, 0.0);
     let b = Point::new(0.0, 1.0);
-    let c = Point::new(1.0, 0.0);
+    let c = Point::new(1.0, 1.0);
+    let d = Point::new(1.0, 0.0);
 
-    assert_eq!(orientation(a,b,c), CounterClockwise);
-    assert_eq!(orientation(a,c,b), Clockwise);
+    assert_eq!(orientation(a,b,d), Clockwise);
+    assert_eq!(orientation(a,d,b), CounterClockwise);
+    assert_eq!(orientation(a,c,b), CounterClockwise);
+}
+#[test]
+fn orientation_test_torus() {
+    let points = vec![
+        Point::new(0.0, 0.0), // 0
+        Point::new(-0.707, 0.707), // 1
+        Point::new(0.0, 1.0), // 2
+        Point::new( 0.707, 0.707), // 3
+        Point::new(1.0, 0.0), // 4
+        Point::new( 0.707,-0.707), // 5
+        Point::new(0.0, -1.), // 6
+        Point::new(-0.707,-0.707), // 7
+        Point::new(-1., 0.0), // 8
+    ];
+
+    assert_eq!(orientation(points[8],points[4],points[6]), Clockwise);
+    assert_eq!(orientation(points[8],points[6],points[7]), Clockwise);
 }
 #[test]
 fn orientation_test_colinear() {
@@ -67,7 +89,7 @@ pub fn giftwrap(points: &Vec<Point>,
             }
         }
     }
-    // println!("Leftmost is {:?} at {}", leftmost, leftmost_ix);
+    println!("Leftmost is {:?} at {}", leftmost, leftmost_ix);
 
     let mut ix_left_to_insert:HashSet<Index> = HashSet::with_capacity(included.len());
     for &i in included {
@@ -81,6 +103,7 @@ pub fn giftwrap(points: &Vec<Point>,
     let mut base_ix = leftmost_ix;
     let mut need_to_reinsert_leftmost = true;
     loop {
+        println!("With base {:?} at ({})", points[base_ix], base_ix);
         let mut end_ix:Index = match ix_left_to_insert.iter().next() {
             Some(x) => *x,
             None    => break, // Ran out of points, we're done
@@ -90,12 +113,10 @@ pub fn giftwrap(points: &Vec<Point>,
                 Colinear => continue, // TODO check distance
                 Clockwise => continue,
                 CounterClockwise => {
-                    /*
                     println!(
-                    "With {base:?}, Swapping {end:?}({end_ix:?}) for {other:?}({other_ix:?}) \nas {base_ix:?} {end_ix:?} {other_ix:?} form a counterclockwise triange",
+                    "With {base:?}, Swapping {end:?}({end_ix:?}) for {other:?}({other_ix:?}) \nas {base_ix:?} {end_ix:?} {other_ix:?} form a CounterClockwise triange",
                         base=points[base_ix], end=points[end_ix], other=points[other_ix],
                         base_ix=base_ix, end_ix=end_ix, other_ix=other_ix);
-                        */
 
                     end_ix = other_ix},
             };
@@ -118,15 +139,37 @@ pub fn giftwrap(points: &Vec<Point>,
 fn test_giftwrap() {
     let points = vec![
         Point::new(0.0, 0.0), // 0
-        Point::new(0.0, 1.0), // 1
+        Point::new(1.0, 0.0), // 1
         Point::new(1.0, 1.0), // 2
-        Point::new(1.0, 0.0), // 3
+        Point::new(0.0, 1.0), // 3
         Point::new(0.5, 0.5), // 4
     ];
     let inpoints = vec![0,1,2,3,4];
+    let inpoints = vec![4,1,0,2,3];
 
     let hull = giftwrap(&points, &inpoints);
     assert_eq!(hull, vec![ 3, 2, 1, 0 ]);
+}
+#[test]
+fn test_giftwrap_torus() {
+    let points = vec![
+        Point::new(0.0, 0.0), // 0
+        Point::new(-0.707, 0.707), // 1
+        Point::new(0.0, 1.0), // 2
+        Point::new( 0.707, 0.707), // 3
+        Point::new(1.0, 0.0), // 4
+        Point::new( 0.707,-0.707), // 5
+        Point::new(0.0, -1.), // 6
+        Point::new(-0.707,-0.707), // 7
+        Point::new(-1., 0.0), // 8
+    ];
+    let inpoints = vec![0,2,4,6,8];
+    let hull = giftwrap(&points, &inpoints);
+    assert_eq!(hull, vec![ 2, 4, 6, 8, ]);
+
+    let inpoints = vec![0,1,2,3,4,5,6,7,8];
+    let hull = giftwrap(&points, &inpoints);
+    assert_eq!(hull, vec![ 1, 2, 3, 4, 5, 6, 7, 8, ]);
 }
 
 
@@ -151,7 +194,16 @@ pub fn find_hull(
         // todo remove crossing
     }
     let mut radii = vec![];
-    radii.resize(points.len(), 1.);
+    radii.resize(points.len(), 0.1);
 
     (hull, radii)
+}
+
+pub fn make_inblob(size: usize, included: &Vec<Index>) -> Vec<bool> {
+    let mut inblob: Vec<bool> = Vec::with_capacity(size);
+    inblob.resize(size, false);
+    for &i in included {
+        inblob[i] = true;
+    }
+    inblob
 }

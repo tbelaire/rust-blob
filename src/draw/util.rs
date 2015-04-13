@@ -1,6 +1,5 @@
 
-use types::{Point, Vector, Index, Color};
-use std::f64;
+use types::{SPoint, Point, Vector, Index};
 use std::path::Path;
 use tau::TAU;
 
@@ -26,10 +25,9 @@ fn test_ascii_path_to_string() {
 }
 
 
-pub fn smooth_line_normal(&a: &Point, a_r: &f64, a_inblob: bool,
-                          &b: &Point, b_r: &f64, b_inblob: bool) -> Vector {
+pub fn smooth_line_normal(&a: &Point, a_r: f64, a_inblob: bool,
+                          &b: &Point, b_r: f64, b_inblob: bool) -> Vector {
     use na::*;
-    use std::ops::Sub;
     //                     ___
     //        \n     ___---\ b_r
     //  a      \__---       b
@@ -55,12 +53,13 @@ pub fn smooth_line_normal(&a: &Point, a_r: &f64, a_inblob: bool,
     } else {
         (a_r + b_r)/distance
     };
+    assert!(delta <= 1., "The radii not must overlap! a_r:{}, b_r:{} distance:{}",
+           a_r, b_r, distance);
 
     let mut y = delta.acos();
     if !a_inblob && b_inblob {
         y = (TAU/2.)-y
     }
-    println!("Angle is {}", y.to_degrees());
     Rot2::<f64>::new(Vec1::new(y)) * d
 }
 
@@ -71,7 +70,7 @@ fn test_smooth_line_normal_up() {
     let a = Point::new(0.0, 0.0);
     let b = Point::new(1.0, 0.0);
 
-    let up = smooth_line_normal(&a, &0.2, true, &b, &0.2, true);
+    let up = smooth_line_normal(&a, 0.2, true, &b, 0.2, true);
     println!("Up is {:?}", up);
     assert!(na::approx_eq(&up, &Vector::new(0.0, 1.0)));
 }
@@ -82,18 +81,17 @@ fn test_smooth_line_normal_up2() {
     let a = Point::new(0.0, 0.0);
     let b = Point::new(1.0, 0.0);
 
-    let up2 = smooth_line_normal(&a, &0.2, false, &b, &0.2, false);
+    let up2 = smooth_line_normal(&a, 0.2, false, &b, 0.2, false);
     println!("up2 is {:?}", up2);
     assert!(na::approx_eq(&up2, &Vector::new(0.0,  1.0)));
 }
 
 #[test]
 fn test_smooth_line_normal_upish_leftish() {
-    use na;
     let a = Point::new(0.0, 0.0);
     let b = Point::new(1.0, 0.0);
 
-    let uppish_leftish = smooth_line_normal(&a, &0.2, true, &b, &0.8, true);
+    let uppish_leftish = smooth_line_normal(&a, 0.2, true, &b, 0.8, true);
     println!("Uppish leftish is {:?}", uppish_leftish);
     assert!(uppish_leftish.x < 0.);
     assert!(uppish_leftish.y > 0.);
@@ -101,14 +99,13 @@ fn test_smooth_line_normal_upish_leftish() {
 
 #[test]
 fn test_smooth_line_normal_up_left() {
-    use na;
     let a = Point::new(0.0, 0.0);
     let b = Point::new(1.0, 0.0);
     //           \         ____
     //  o         \____---- o
     //    ____---- blob
     //
-    let up_left = smooth_line_normal(&a, &0.2, false, &b, &0.2, true);
+    let up_left = smooth_line_normal(&a, 0.2, false, &b, 0.2, true);
     println!("up_left is {:?}", up_left);
     assert!(up_left.x < 0.);
     assert!(up_left.y > 0.);
@@ -116,14 +113,24 @@ fn test_smooth_line_normal_up_left() {
 
 #[test]
 fn test_smooth_line_normal_up_right() {
-    use na;
     let a = Point::new(0.0, 0.0);
     let b = Point::new(1.0, 0.0);
 
-    let up_right = smooth_line_normal(&a, &0.2, true, &b, &0.2, false);
+    let up_right = smooth_line_normal(&a, 0.2, true, &b, 0.2, false);
     println!("up_right is {:?}", up_right);
     assert!(up_right.x > 0.);
     assert!(up_right.y > 0.);
+}
+#[test]
+fn test_smooth_line_normal_torus_bad() {
+    let a = Point::new(0.707,-0.707);
+    let b = Point::new(0.0, 0.0);
+
+    let n = smooth_line_normal(&a, 0.1, true, &b, 0.1, false);
+    println!("n: {:?}", n);
+    assert!(n.x < 0.);
+    assert!(n.y < 0.);
+    assert!(n.x < n.y); // Pointing more x-ly
 }
 
 
@@ -141,11 +148,12 @@ fn test_normalize_angle() {
     use std::f64::consts::PI;
 
     assert_eq!(normalize_angle(-PI), PI);
+    assert!(normalize_angle(-0.785398) > 0.);
 }
 
 
-fn smmoth_line_angle(a: &Point, a_r: &f64, a_inblob: bool,
-                     b: &Point, b_r: &f64, b_inblob: bool) -> (f64,f64) {
+pub fn smooth_line_angle(a: &Point, a_r: f64, a_inblob: bool,
+                     b: &Point, b_r: f64, b_inblob: bool) -> (f64,f64) {
     let n = smooth_line_normal(a, a_r, a_inblob, b, b_r, b_inblob);
     let theta = n.y.atan2(n.x); // Yes, I know it's strange.
 
