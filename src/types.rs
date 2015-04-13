@@ -5,6 +5,7 @@ use na::Pnt2;
 pub type Point = Pnt2<f64>;
 pub type Vector = Vec2<f64>;
 pub type Index = usize;
+pub type Radius = f64;
 
 pub type Comb = Vec<Vec<Index>>;
 

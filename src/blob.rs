@@ -1,7 +1,9 @@
-use ::types::{Point, Index};
+use types::{Point, Index, Radius};
+use config::Config;
+use EPSILON;
+
 use std::f64;
 
-use ::EPSILON;
 
 
 use self::Orientation::*;
@@ -41,6 +43,8 @@ fn orientation_test_colinear() {
     assert_eq!(orientation(a,b,c), Colinear);
 }
 
+/// Giftwrap algorithm for finding the convex hull of a set of points.
+/// Runs in O(n * m), where n = included.len() and m = result.len();
 pub fn giftwrap(points: &Vec<Point>,
             included: &Vec<Index>)
         -> Vec<Index> { // Hull
@@ -123,4 +127,31 @@ fn test_giftwrap() {
 
     let hull = giftwrap(&points, &inpoints);
     assert_eq!(hull, vec![ 3, 2, 1, 0 ]);
+}
+
+
+/// The main workhorse function.
+/// Finds the perfect hull, and radii for the blob.
+pub fn find_hull(
+            config: &Config,
+            points: &Vec<Point>,
+            inpoints: &Vec<Index>,
+            expoints: &Vec<Index>,
+            ) -> (Vec<Index>, Vec<Radius>) {
+
+    let hull = giftwrap(&points, &inpoints);
+
+    if config.run.fix_hull {
+        // todo fix hull
+    }
+    if config.run.refine_poly {
+        // todo refine poly
+    }
+    if config.run.rm_crossing {
+        // todo remove crossing
+    }
+    let mut radii = vec![];
+    radii.resize(points.len(), 1.);
+
+    (hull, radii)
 }

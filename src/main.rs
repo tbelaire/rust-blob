@@ -1,25 +1,16 @@
-#![feature(str_words)]
-extern crate rustc_serialize;
-extern crate tau;
-extern crate nalgebra as na;
+extern crate rust_blob;
 
 
-mod blob;
-mod config;
-mod draw;
-mod input;
-mod types;
-
-const EPSILON: f64 = 0.01;
-
-
-
-use config::{parse_config, parse_args};
-use input::{read_points, read_combs};
-use types::Color;
+use rust_blob::config::{parse_config, parse_args};
+use rust_blob::input::{read_points, read_combs};
+use rust_blob::types::Color;
+use rust_blob::blob;
+use rust_blob::draw;
 
 use std::fs::File;
 
+
+/// Documenation for main
 fn main() {
     let args = parse_args();
     println!("{:?}", args);
@@ -39,10 +30,6 @@ fn main() {
         for (set_num, set) in comb.iter().enumerate() {
             use std::path::PathBuf;
             use std::fs;
-            let hull = blob::giftwrap(&points, &set);
-            let inpoints = set;
-            let expoints = (0..points.len()).filter(
-                |ex| ! inpoints.iter().any(|inp| inp == ex)).collect();
             let filepath:PathBuf;
             if args.flag_output_directories {
                 let filename = format!("{:02}/{:02}/{:02}.png",
@@ -61,6 +48,16 @@ fn main() {
                 filepath = PathBuf::from(filename);
 
             }
+            // Compute the in and out pointsets
+            let inpoints = set;
+            let expoints = (0..points.len()).filter(
+                |ex| ! inpoints.iter().any(|inp| inp == ex)).collect();
+
+            // Compute the polygon, and radii.
+            let (hull, radii) = blob::find_hull(
+                &config, &points, &inpoints, &expoints );
+
+            // Draw it!
             draw::draw( &config, &points,
                         &hull, &hull_color,
                         &inpoints, &inpoints_color,

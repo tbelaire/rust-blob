@@ -1,14 +1,26 @@
+// This is the mount point for cairo.
 extern crate cairo;
-use config::Config;
-use types::{Point, Vector, Index, Color};
+use draw::cairo::surface::Surface;
+use draw::cairo::Cairo;
 
-use self::cairo::surface::Surface;
-use self::cairo::Cairo;
+// Our helper functions live a in util.
+mod util;
+use self::util::*;
+
+// For all the parameters, we look to Config.
+use config::Config;
+
+// We need our types.
+use types::{Point, Vector, Index, Color};
 
 use std::f64;
 use std::path::Path;
 
 use tau::TAU;
+
+
+/// This file deals with all the direct calls to cairo things.
+/// Helper utility functions will be in draw::util.
 
 pub fn draw(config: &Config,
             points: &Vec<Point>,
@@ -63,28 +75,14 @@ pub fn draw(config: &Config,
     }
 
 
-    let filename = ascii_path_to_string(path).expect("Filename not ascii?!");
+    let filename = util::ascii_path_to_string(path).expect("Filename not ascii?!");
     surface.write_to_png(filename);
 
 }
 
-fn ascii_path_to_string(path: &Path) -> Option<&str> {
-    use std::ascii::AsciiExt;
-    let s: &str = match path.to_str() {
-        Some(x) => x,
-        None => return None,
-    };
 
-    if s[..].is_ascii() {
-        Some(s)
-    } else {
-        None
-    }
-}
-
-
-
-
+/// This adjusts cairo's user transform such that drawing the points
+/// in their co-ordinate system puts them in the middle of the image.
 fn scale_world(cr: &mut Cairo,
         boundary: f64, img_width: i32, img_height: i32,
         points: &Vec<Point>) -> f64 {
@@ -116,6 +114,8 @@ fn scale_world(cr: &mut Cairo,
     scalex
 }
 
+/// This traces a polygon with straight lines to cairo
+/// It does not set any cairo options, like fill color or line width.
 fn draw_hull(cr : &mut Cairo,
               points: &Vec<Point>,
               hull: &Vec<Index>) {
@@ -144,57 +144,4 @@ fn trace_blob(cr: &mut Cairo,
              radii: &Vec<f64>) {
     cr.new_path();
     let mut previous_angle:f64;
-
-
 }
-
-fn smooth_line_normal(&a: &Point, a_r: &f64, a_inblob: bool,
-                      &b: &Point, b_r: &f64, b_inblob: bool) -> Vector {
-    use na::*;
-    use std::ops::Sub;
-    let mut u:Vector = b - a;
-    let norm:f64 = u.normalize_mut();
-    // u is now normalized
-    let delta = if a_inblob == b_inblob {
-        (a_r - b_r)/norm
-    } else {
-        (a_r + b_r)/norm
-    };
-
-    if a_inblob {
-        Rot2::<f64>::new(Vec1::new(delta.acos())) * u
-    } else {
-        Rot2::<f64>::new(Vec1::new(TAU - delta.acos())) * u
-    }
-}
-
-
-#[test]
-fn test_smooth_line_normal() {
-    use na;
-    let a = Point::new(0.0, 0.0);
-    let b = Point::new(1.0, 0.0);
-
-    let up = smooth_line_normal(&a, &0.2, true, &b, &0.2, true);
-    println!("Up is {:?}", up);
-    assert!(na::approx_eq(&up, &Vector::new(0.0, 1.0)));
-
-    // TODO  is this correct???
-    let down = smooth_line_normal(&a, &0.2, false, &b, &0.2, false);
-    println!("Down is {:?}", down);
-    assert!(na::approx_eq(&down, &Vector::new(0.0, -1.0)));
-
-    let uppish_leftish = smooth_line_normal(&a, &0.2, true, &b, &0.8, true);
-    println!("Uppish leftish is {:?}", uppish_leftish);
-    assert!(uppish_leftish.x < 0.);
-    assert!(uppish_leftish.y > 0.);
-
-    let uppish_rightish = smooth_line_normal(&a, &0.2, true, &b, &0.2, false);
-    println!("uppish rightish is {:?}", uppish_rightish);
-    assert!(uppish_rightish.x > 0.);
-    assert!(uppish_rightish.y > 0.);
-}
-
-
-
-

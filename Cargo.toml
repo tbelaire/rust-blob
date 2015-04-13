@@ -3,6 +3,12 @@ name = "rust-blob"
 version = "0.0.1"
 authors = ["Theo Belaire <theo.belaire@gmail.com>"]
 
+[[bin]]
+name = "draw"
+path = "src/main.rs"
+doc = true
+doctest = true
+
 [dependencies]
 toml = "0.1"
 docopt = "*"
