@@ -201,7 +201,10 @@ pub fn find_hull(
         // todo remove crossing
     }
     debug!("After rm_crossings");
-    let radii = compute_radii_conservative(&points, &inpoints, &expoints);
+    let dist = compute_nearest_distances(&points);
+    trace!("Distances {:?}", dist);
+    let radii = dist.map_in_place(|x| x / config.b2.mindist_radius_factor);
+    trace!("Radii {:?}", radii);
     debug!("After compute radii");
 
     (hull, radii)
@@ -216,10 +219,8 @@ pub fn make_inblob(size: usize, included: &Vec<Index>) -> Vec<bool> {
     inblob
 }
 
-pub fn compute_radii_conservative(
-        points: &Vec<Point>,
-        inpoints: &Vec<Index>,
-        expoints: &Vec<Index>) -> Vec<Radius> {
+pub fn compute_nearest_distances(
+        points: &Vec<Point>) -> Vec<Radius> {
 
     use std::cmp::partial_min; // f64s don't have == defined, only <=
     use na::Norm;
@@ -237,5 +238,6 @@ pub fn compute_radii_conservative(
         }
     }
     // TODO factor out the 0.3 into config.b2.mindist_radius_factor
-    radii2.map_in_place(|r2:f64| -> f64 {0.3 * r2.sqrt()})
+    let radii = radii2.map_in_place(|r2:f64| -> f64 {r2.sqrt()});
+    radii
 }

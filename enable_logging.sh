@@ -6,7 +6,7 @@
 # trace
 
 
-export RUST_LOG=rust_blob=info,rust_blob::draw=debug,draw=info
+export RUST_LOG=rust_blob=info,rust_blob::blob=debug,rust_blob::draw=debug,draw=info
 
 # If you want to see everything going on,
 # export RUST_LOG=trace
