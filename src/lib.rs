@@ -1,5 +1,7 @@
 #![feature(str_words)]
 #![feature(collections)]
+// Using partial_min for comparing f64s
+#![feature(core)]
 #[macro_use]
 extern crate log;
 

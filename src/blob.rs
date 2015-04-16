@@ -188,17 +188,21 @@ pub fn find_hull(
 
     let hull = giftwrap(&points, &inpoints);
 
+    debug!("After giftwrap");
     if config.run.fix_hull {
         // todo fix hull
     }
+    debug!("After fix_hull");
     if config.run.refine_poly {
         // todo refine poly
     }
+    debug!("After refine_poly");
     if config.run.rm_crossing {
         // todo remove crossing
     }
-    let mut radii = vec![];
-    radii.resize(points.len(), 0.1);
+    debug!("After rm_crossings");
+    let radii = compute_radii_conservative(&points, &inpoints, &expoints);
+    debug!("After compute radii");
 
     (hull, radii)
 }
@@ -210,4 +214,28 @@ pub fn make_inblob(size: usize, included: &Vec<Index>) -> Vec<bool> {
         inblob[i] = true;
     }
     inblob
+}
+
+pub fn compute_radii_conservative(
+        points: &Vec<Point>,
+        inpoints: &Vec<Index>,
+        expoints: &Vec<Index>) -> Vec<Radius> {
+
+    use std::cmp::partial_min; // f64s don't have == defined, only <=
+    use na::Norm;
+    // To avoid a lot of sqrts, I compute all the radii squared
+    // and sqrt it all at the end.
+    let mut radii2 = vec![f64::INFINITY; points.len()];
+    for i in 0..points.len() {
+        for j in i+1..points.len() {
+            let sqnorm = (points[i] - points[j]).sqnorm();
+            // Nans or other incomparables will return nothing
+            // if partial_min is passed them
+            // We know sqnorm is not nan though.
+            radii2[i] = partial_min(radii2[i], sqnorm).unwrap();
+            radii2[j] = partial_min(radii2[j], sqnorm).unwrap();
+        }
+    }
+    // TODO factor out the 0.3 into config.b2.mindist_radius_factor
+    radii2.map_in_place(|r2:f64| -> f64 {0.3 * r2.sqrt()})
 }
