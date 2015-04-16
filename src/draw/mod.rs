@@ -180,10 +180,12 @@ fn trace_blob(cr: &mut Cairo,
         &points[last_ix], radii[last_ix], inblob[last_ix],
         &points[first_ix], radii[first_ix], inblob[first_ix]);
 
-    for &i in hull {
-        let next_i = (i + 1) % points.len();
+    for hull_ix in 0..hull.len() {
+        let i:      Index = hull[hull_ix];
+        let next_i: Index = hull[(hull_ix + 1) % hull.len()];
         let a = points[i];
         let b = points[next_i];
+        trace!("i: {}, {}, a:{:?}, b:{:?}", i, next_i, a, b);
 
         let a_r = radii[i];
         let b_r = radii[next_i];
@@ -191,8 +193,10 @@ fn trace_blob(cr: &mut Cairo,
         let a_inblob = inblob[i];
         let b_inblob = inblob[next_i];
 
+        trace!("a_inblob: {}, b_inblob: {}", a_inblob, b_inblob);
         let (a_ang, b_ang) = smooth_line_angle(&a, a_r, a_inblob,
                                                &b, b_r, b_inblob);
+        trace!("a_ang: {}, b_ang: {}", a_ang.to_degrees(), b_ang.to_degrees());
         if a_inblob {
             debug!("cr.arc_negative({}, {}, {}, {}, {})", a.x, a.y, a_r, previous_angle.to_degrees(), a_ang.to_degrees());
             cr.arc_negative(a.x, a.y, a_r, previous_angle, a_ang);

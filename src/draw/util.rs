@@ -149,19 +149,46 @@ fn test_normalize_angle() {
 
     assert_eq!(normalize_angle(-PI), PI);
     assert!(normalize_angle(-0.785398) > 0.);
+    assert_eq!(normalize_angle((-135.0 as f64).to_radians()), (225.0 as f64).to_radians());
 }
 
 
 pub fn smooth_line_angle(a: &Point, a_r: f64, a_inblob: bool,
-                     b: &Point, b_r: f64, b_inblob: bool) -> (f64,f64) {
+                         b: &Point, b_r: f64, b_inblob: bool) -> (f64,f64) {
     let n = smooth_line_normal(a, a_r, a_inblob, b, b_r, b_inblob);
     let theta = n.y.atan2(n.x); // Yes, I know it's strange.
+
+    let theta = normalize_angle(theta);
 
     if a_inblob == b_inblob {
         (theta, theta)
     } else {
-        (theta, normalize_angle((theta + TAU/2.)))
+        (theta, normalize_angle(theta + TAU/2.))
     }
 }
 
+#[test]
+fn test_smooth_line_angle() {
+    let a = Point::new(0.,0.);
+    let points = vec![
+        Point::new(0., -1.),  // 0
+        Point::new(1., -1.),  // 1
+        Point::new(1.,  0.),  // 2
+        Point::new(1.,  1.),  // 3
+        Point::new(0.,  1.),  // 4
+        Point::new(-1., 1.),  // 5
+        Point::new(-1., 0.),  // 6
+        Point::new(-1., -1.),  // 7
+        ];
+
+    for (i, &b) in points.iter().enumerate() {
+        let angle = (i * 45) as f64;
+        let (theta, _theta2) = smooth_line_angle(&a, 0.1, true, &b, 0.1, true);
+        assert!((theta.to_degrees() - angle).abs() < 0.01,
+            "true true angles incorrect in {}, expected {}, got {}",
+            i, angle, theta.to_degrees());
+        let (theta, _theta2) = smooth_line_angle(&a, 0.1, false, &b, 0.1, false);
+        assert!((theta.to_degrees() - angle).abs() < 0.01, "false false angles incorrect in {}", i);
+    }
+}
 
