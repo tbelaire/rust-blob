@@ -1,6 +1,5 @@
 
-use na::Vec2;
-use na::Pnt2;
+use na::{Vec2,Vec1,Pnt2,Rot2};
 
 pub type Point = Pnt2<f64>;
 
@@ -11,6 +10,12 @@ pub struct SPoint {
 }
 
 pub type Vector = Vec2<f64>;
+
+pub type Rotation = Rot2<f64>;
+pub fn rotate_ccw(theta: f64, v: Vector) -> Vector {
+    Rot2::<f64>::new(Vec1::new(theta)) * v
+}
+
 pub type Index = usize;
 pub type Radius = f64;
 

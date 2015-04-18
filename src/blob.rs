@@ -182,15 +182,17 @@ fn test_giftwrap_torus() {
 pub fn find_hull(
             config: &Config,
             points: &Vec<Point>,
+            inblob: &Vec<bool>,
             inpoints: &Vec<Index>,
             expoints: &Vec<Index>,
             ) -> (Vec<Index>, Vec<Radius>) {
 
-    let hull = giftwrap(&points, &inpoints);
+    let mut hull = giftwrap(&points, &inpoints);
 
     debug!("After giftwrap");
     if config.run.fix_hull {
         // todo fix hull
+        hull = fix_hull(&points, &inblob, hull, &inpoints, &expoints);
     }
     debug!("After fix_hull");
     if config.run.refine_poly {
@@ -240,4 +242,51 @@ pub fn compute_nearest_distances(
     // TODO factor out the 0.3 into config.b2.mindist_radius_factor
     let radii = radii2.map_in_place(|r2:f64| -> f64 {r2.sqrt()});
     radii
+}
+
+pub fn fix_hull(
+        points: &Vec<Point>,
+        inblob: &Vec<bool>,
+        mut hull: Vec<Index>,
+        inpoints: &Vec<Index>,
+        expoints: &Vec<Index>) -> Vec<Index> {
+
+    for &eix in expoints {
+        // TODO improve runtime by banishing in_hull.
+        if point_inside(&points, &points[eix], &hull) && !in_hull(eix, &hull) {
+
+            warn!("There's a excluded point inside: {1:?}({0})", eix, points[eix]);
+
+        }
+    }
+    hull
+}
+
+fn point_inside(points: &Vec<Point>, p: &Point, hull: &Vec<Index>) -> bool {
+    let mut inside = false;
+    let mut e0 = points[hull[hull.len() - 1]];
+    let mut y0 = (e0.y > p.y);
+    for &ix in hull.iter() {
+        let e1 = points[ix];
+        let y1 = (e1.y > p.y);
+        if y0 != y1 {
+            // Mybe re-read http://www.ecse.rpi.edu/~wrf/Research/Short_Notes/pnpoly.html
+            // t == y1 is more efficient maybe, or we can just use t2 instead
+            // as it it more obviously correct.  Should benchmark it.
+            // bool t = ((e1.y - p.y) * (e0.x - e1.x) >= (e1.x - p.x) * (e0.y - e1.y));
+            let t2 = (p.x < ((e1.x-e0.x) * (p.y-e0.y) / (e1.y-e0.y)) + e0.x);
+            if t2 {
+                inside = !inside;
+            }
+        }
+        e0 = e1;
+        y0 = y1;
+    }
+    return inside;
+}
+fn in_hull(a : Index, p: &Vec<Index>) -> bool {
+    match p.iter().position(|x| *x == a) {
+        Some(_) => true,
+        None    => false,
+    }
 }

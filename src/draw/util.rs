@@ -1,5 +1,5 @@
 
-use types::{SPoint, Point, Vector, Index};
+use types::{SPoint, Point, Vector, Index, rotate_ccw};
 use std::path::Path;
 use tau::TAU;
 
@@ -60,7 +60,7 @@ pub fn smooth_line_normal(&a: &Point, a_r: f64, a_inblob: bool,
     if !a_inblob && b_inblob {
         y = (TAU/2.)-y
     }
-    Rot2::<f64>::new(Vec1::new(y)) * d
+    rotate_ccw(y, d)
 }
 
 

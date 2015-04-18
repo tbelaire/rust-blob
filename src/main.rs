@@ -63,7 +63,7 @@ fn main() {
             let inblob = blob::make_inblob(points.len(), inpoints);
             // Compute the polygon, and radii.
             let (hull, radii) = blob::find_hull(
-                &config, &points, &inpoints, &expoints );
+                &config, &points, &inblob, &inpoints, &expoints );
 
             info!("Hull:");
             for &ix in &hull {
