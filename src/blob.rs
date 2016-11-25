@@ -78,17 +78,20 @@ pub fn giftwrap(points: &Vec<Point>,
     }
 
     let mut leftmost = Point::new(f64::INFINITY, f64::INFINITY);
-    let mut leftmost_ix = -1;
+    let mut leftmost_ix :isize = -1;
 
     for &i in included {
         let p = points[i];
         if p.x <= leftmost.x {
             if p.x < leftmost.x || p.y < leftmost.y {
                 leftmost = p;
-                leftmost_ix = i;
+                leftmost_ix = i as isize;
             }
         }
     }
+
+    assert!(leftmost_ix >= 0);
+    let leftmost_ix : usize = leftmost_ix as usize;
     // println!("Leftmost is {:?} at {}", leftmost, leftmost_ix);
 
     let mut ix_left_to_insert:HashSet<Index> = HashSet::with_capacity(included.len());
@@ -205,7 +208,7 @@ pub fn find_hull(
     debug!("After rm_crossings");
     let dist = compute_nearest_distances(&points);
     trace!("Distances {:?}", dist);
-    let radii = dist.map_in_place(|x| x / config.b2.mindist_radius_factor);
+    let radii = dist.into_iter().map(|x| x / config.b2.mindist_radius_factor).collect();
     trace!("Radii {:?}", radii);
     debug!("After compute radii");
 
@@ -221,10 +224,16 @@ pub fn make_inblob(size: usize, included: &Vec<Index>) -> Vec<bool> {
     inblob
 }
 
+fn partial_min(a:f64, b:f64) -> f64 {
+    if a < b {
+        a
+    } else {
+        b
+    }
+}
 pub fn compute_nearest_distances(
         points: &Vec<Point>) -> Vec<Radius> {
 
-    use std::cmp::partial_min; // f64s don't have == defined, only <=
     use na::Norm;
     // To avoid a lot of sqrts, I compute all the radii squared
     // and sqrt it all at the end.
@@ -235,12 +244,12 @@ pub fn compute_nearest_distances(
             // Nans or other incomparables will return nothing
             // if partial_min is passed them
             // We know sqnorm is not nan though.
-            radii2[i] = partial_min(radii2[i], sqnorm).unwrap();
-            radii2[j] = partial_min(radii2[j], sqnorm).unwrap();
+            radii2[i] = partial_min(radii2[i], sqnorm);
+            radii2[j] = partial_min(radii2[j], sqnorm);
         }
     }
     // TODO factor out the 0.3 into config.b2.mindist_radius_factor
-    let radii = radii2.map_in_place(|r2:f64| -> f64 {r2.sqrt()});
+    let radii = radii2.into_iter().map(|r2:f64| -> f64 {r2.sqrt()}).collect();
     radii
 }
 

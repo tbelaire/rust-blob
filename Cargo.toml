@@ -23,8 +23,9 @@ env_logger = "*"
 toml = "0.1"
 docopt = "*"
 rustc-serialize = "*"  # if you're using `derive(RustcDecodable)`
-nalgebra = "*"
+nalgebra = "0.2.*"
 tau = "1.0.2"
 
+
 [dependencies.cairo]
-git = "file:///users/tbelaire/github/rust-cairo"
+version = "0.0.4"

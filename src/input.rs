@@ -9,11 +9,14 @@ pub fn read_points(mut f:File) -> Vec<Point> {
     f.read_to_string(&mut data_str).unwrap();
 
     let data: Vec<&str> = data_str
-        .words()
+        .split(char::is_whitespace)
         .skip(1).collect();
     let points: Vec<Point> = data
         .chunks(2)
-        .map(|s| Point::new(s[0].parse().unwrap(), s[1].parse().unwrap()))
+        .filter(|s| s.len() == 2)
+        .map(|s| {
+            Point::new(s[0].parse().unwrap(), s[1].parse().unwrap())
+        })
         .collect();
 
     points
@@ -34,7 +37,7 @@ pub fn read_combs(mut f:File) -> Vec<Comb> {
         for _ in 0..comb_size {
             let line = it.next().expect("Comb cut short");
 
-            let set: Vec<Index> = line.words().skip(1) // Dropping the size
+            let set: Vec<Index> = line.split(char::is_whitespace).skip(2) // Dropping the size
                 .map(|s| s.parse().unwrap())
                 .collect();
             sets.push(set);
