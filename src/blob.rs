@@ -293,6 +293,28 @@ fn point_inside(points: &Vec<Point>, p: &Point, hull: &Vec<Index>) -> bool {
     }
     return inside;
 }
+#[test]
+fn test_point_inside() {
+    let points = vec![
+        Point::new(0.0, 0.0), // 0
+        Point::new(-0.707, 0.707), // 1
+        Point::new(0.0, 1.0), // 2
+        Point::new( 0.707, 0.707), // 3
+        Point::new(1.0, 0.0), // 4
+        Point::new( 0.707,-0.707), // 5
+        Point::new(0.0, -1.), // 6
+        Point::new(-0.707,-0.707), // 7
+        Point::new(-1., 0.0), // 8
+    ];
+    let hull = vec![2,4,6,8];
+    assert!(point_inside(&points, &Point::new(0.,0.), &hull));
+    assert!(!point_inside(&points, &Point::new(1.1,1.1), &hull));
+    for &ix in hull.iter() {
+        assert!(!point_inside(&points, &points[ix], &hull), "Testing that hull point {:?} is excluded", points[ix]);
+    }
+
+}
+
 fn in_hull(a : Index, p: &Vec<Index>) -> bool {
     match p.iter().position(|x| *x == a) {
         Some(_) => true,
